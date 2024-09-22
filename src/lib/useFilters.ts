@@ -29,15 +29,8 @@ export const useFilters = () => {
   const filters = new URLSearchParams(searchParams.toString());
 
   const setFilters = (partialFilters: Record<string, string>) => {
-    console.log("just looking", partialFilters);
-    Object.entries(cleanEmptyParams(partialFilters)).forEach(([key, value]) => {
-      if (value === undefined || value === null) {
-        filters.delete(key);
-      } else {
-        filters.set(key, value.toString());
-      }
-    });
-    window.history.pushState(null, "", `?${filters.toString()}`);
+    const queries = new URLSearchParams(cleanEmptyParams(partialFilters));
+    window.history.pushState(null, "", `?${queries.toString()}`);
   };
 
   const resetFilters = () => window.history.pushState(null, "", pathname);
