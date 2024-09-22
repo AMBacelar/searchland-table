@@ -6,6 +6,9 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "~components/theme-provider";
 import { ModeToggle } from "./_components/theme-toggle";
+import Link from "next/link";
+import { HomeIcon } from "@radix-ui/react-icons";
+import { Button } from "./_components/ui/button";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -26,7 +29,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <div className="p-4 flex justify-center"><ModeToggle /></div>
+            <div className="p-4 flex justify-center items-center gap-2">
+              <Link className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9" href="/">
+                <HomeIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
+                <span className="sr-only">home</span>
+              </Link>
+              <ModeToggle />
+            </div>
             {children}
           </TRPCReactProvider>
         </ThemeProvider>
