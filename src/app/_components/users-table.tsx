@@ -22,6 +22,7 @@ import {
 } from "~components/ui/dialog"
 import { CreateUserForm } from "~components/create-user-form";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 export const UsersTable = () => {
   const router = useRouter();
@@ -65,9 +66,9 @@ export const UsersTable = () => {
           <Link href={`/users/${user.id}`} className="">View</Link>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="text-red-600 hover:text-red-900">
+              <Button variant="destructive" >
                 Delete<span className="sr-only">, {user.username}</span>
-              </button>
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
