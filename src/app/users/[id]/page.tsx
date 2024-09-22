@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: { id: string } }) {
               </div>
               <div className="grid grid-cols-3">
                 <dt className="font-medium">Date of Birth:</dt>
-                <dd className="col-span-2">{new Date(user.dob).toLocaleDateString()}</dd>
+                <dd className="col-span-2">{user.dob.toLocaleDateString()}</dd>
               </div>
               <div className="grid grid-cols-3">
                 <dt className="font-medium">Joined:</dt>

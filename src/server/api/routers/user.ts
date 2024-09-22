@@ -9,7 +9,7 @@ const departments = ["Engineering", "Marketing", "Finance"] as const;
 
 const newPerson = (): {
   department: string;
-  dob: string;
+  dob: Date;
   email: string;
   familyName: string;
   givenName: string;
@@ -22,7 +22,7 @@ const newPerson = (): {
     department:
       departments[Math.floor(Math.random() * departments.length)] ??
       departments[0],
-    dob: faker.date.birthdate().toISOString(),
+    dob: faker.date.birthdate(),
     email: faker.internet.email({ firstName: givenName, lastName: familyName }),
     familyName,
     givenName,
@@ -38,7 +38,7 @@ export const userRouter = createTRPCRouter({
   create: publicProcedure
     .input(
       z.object({
-        dob: z.string(),
+        dob: z.number(),
         email: z.string().email(),
         familyName: z.string(),
         givenName: z.string(),
@@ -49,7 +49,7 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(users).values({
-        dob: input.dob,
+        dob: new Date(input.dob),
         email: input.email,
         familyName: input.familyName,
         givenName: input.givenName,

@@ -21,7 +21,7 @@ export const users = createTable(
     username: text("username", { length: 256 }).notNull(),
     givenName: text("givenName", { length: 256 }).notNull(),
     familyName: text("familyName", { length: 256 }).notNull(),
-    dob: text("dob", { length: 256 }).notNull(),
+    dob: int("dob", { mode: "timestamp" }).notNull(),
     title: text("title", { length: 256 }).notNull(),
     department: text("department", { length: 256 }).notNull(),
     email: text("email", { length: 256 }).notNull().unique(),
