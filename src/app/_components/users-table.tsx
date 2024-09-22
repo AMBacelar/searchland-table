@@ -274,8 +274,8 @@ export const UsersTable = () => {
         </div>
       </div>
       <Dialog open={showDialogOpen} onOpenChange={setShowDialogOpen} >
-        <DialogTitle>Create User</DialogTitle>
         <DialogContent className="sm:max-w-[725px]">
+          <DialogTitle>Add User</DialogTitle>
           <CreateUserForm onSubmitComplete={() => setShowDialogOpen(false)} />
         </DialogContent>
       </Dialog>
