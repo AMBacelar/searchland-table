@@ -2,9 +2,15 @@
 "use client";
 
 import { useState } from "react";
+import {
+  type ColumnDef,
+  getCoreRowModel,
+  type PaginationState,
+  useReactTable,
+} from '@tanstack/react-table'
+import Link from "next/link";
+
 import { api } from "~/trpc/react";
-import { type users as userSchema } from "~/server/db/schema";
-import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,19 +26,30 @@ import {
   DialogContent,
 } from "~components/ui/dialog"
 import { CreateUserForm } from "~components/create-user-form";
-import Link from "next/link";
 import { Button } from "./ui/button";
+import { useFilters } from "~/lib/useFilters";
+
+export const DEFAULT_PAGE_INDEX = '0';
+export const DEFAULT_PAGE_SIZE = '10';
+
+const toObject = (filters: PaginationState) => Object.fromEntries(Object.entries(filters).map(([key, value]) => [key, String(value)]))
 
 export const UsersTable = () => {
   const [showDialogOpen, setShowDialogOpen] = useState(false);
   const [showAlertOpen, setShowAlertOpen] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<number>();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const page = parseInt(searchParams.get('page') ?? '1', 10);
-  const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10);
+  const { filters, setFilters } = useFilters();
+
+  const paginationState: PaginationState = {
+    pageIndex: parseInt(filters.get('pageIndex') ?? DEFAULT_PAGE_INDEX, 10),
+    pageSize: parseInt(filters.get('pageSize') ?? DEFAULT_PAGE_SIZE, 10),
+  }
+
   const utils = api.useUtils();
-  const [{ users, totalCount }] = api.user.getUsers.useSuspenseQuery({ limit: 10 });
+  const [{ users, totalCount }] = api.user.getUsers.useSuspenseQuery({
+    limit: paginationState.pageSize,
+    offset: paginationState.pageIndex * paginationState.pageSize,
+  });
   const deleteUserMutation = api.user.deleteUser.useMutation({
     onSuccess: async () => {
       setShowAlertOpen(false);
@@ -46,7 +63,7 @@ export const UsersTable = () => {
     }
   });
 
-  const TableRow = ({ user }: { user: typeof userSchema.$inferSelect }) => {
+  const TableRow = ({ user }: { user: typeof users[number] }) => {
     return (
       <tr key={user.email}>
         <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
@@ -63,8 +80,12 @@ export const UsersTable = () => {
           <div className="">{user.department}</div>
         </td>
         <td className="whitespace-nowrap px-3 py-5 text-sm">{user.email}</td>
-        <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-          <Link href={`/users/${user.id}`} className="">View</Link>
+        <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 flex gap-2">
+          <Link
+            href={`/users/${user.id}`}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+            View
+          </Link>
           <Button variant="destructive" onClick={() => {
             setShowAlertOpen(true);
             setDeleteUserId(user.id);
@@ -75,6 +96,115 @@ export const UsersTable = () => {
       </tr>
     )
   }
+
+  const USER_COLUMNS: ColumnDef<typeof users[number]>[] = [
+    {
+      accessorKey: 'id',
+      header: () => <span>ID</span>,
+      meta: { filterKey: 'id', filterVariant: 'number' },
+    },
+    {
+      accessorKey: 'username',
+      header: () => <span>Username</span>,
+      meta: { filterKey: 'username' },
+    },
+    {
+      accessorKey: 'title',
+      header: () => <span>Job Title</span>,
+      meta: { filterKey: 'title' },
+    },
+    {
+      accessorKey: 'email',
+      header: () => <span>Email</span>,
+      meta: { filterKey: 'email' },
+    },
+  ]
+
+  const table = useReactTable({
+    data: users,
+    columns: USER_COLUMNS,
+    state: { pagination: paginationState },
+    rowCount: totalCount,
+    onPaginationChange: pagination => {
+      setFilters(
+        typeof pagination === 'function'
+          ? toObject(pagination(paginationState))
+          : toObject(pagination)
+      )
+    },
+    manualFiltering: true,
+    manualSorting: true,
+    manualPagination: true,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const Pagination = () => (
+    <div className="flex items-center gap-2 my-2">
+      <button
+        className="border rounded p-1 disabled:text-gray-500 disabled:cursor-not-allowed"
+        onClick={() => table.setPageIndex(0)}
+        disabled={!table.getCanPreviousPage()}
+      >
+        {'<<'}
+      </button>
+      <button
+        className="border rounded p-1 disabled:text-gray-500 disabled:cursor-not-allowed"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        {'<'}
+      </button>
+      <button
+        className="border rounded p-1 disabled:text-gray-500 disabled:cursor-not-allowed"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        {'>'}
+      </button>
+      <button
+        className="border rounded p-1 disabled:text-gray-500 disabled:cursor-not-allowed"
+        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+        disabled={!table.getCanNextPage()}
+      >
+        {'>>'}
+      </button>
+      <span className="flex items-center gap-1">
+        <div>Page</div>
+        <strong>
+          {table.getState().pagination.pageIndex + 1} of{' '}
+          {table.getPageCount()}
+        </strong>
+      </span>
+      <span className="flex items-center gap-1">
+        | Go to page:
+        <input
+          type="number"
+          value={table.getState().pagination.pageIndex + 1}
+          onChange={e => {
+            const page = e.target.value ? Number(e.target.value) - 1 : 0
+            table.setPageIndex(page)
+          }}
+          className="border p-1 rounded w-16"
+        />
+      </span>
+      <select
+        value={table.getState().pagination.pageSize}
+        onChange={e => {
+          table.setPageSize(Number(e.target.value))
+        }}
+      >
+        {[10, 20, 30, 40, 50].map(pageSize => (
+          <option key={pageSize} value={pageSize}>
+            Show {pageSize}
+          </option>
+        ))}
+      </select>
+      <span className="flex items-center gap-1">
+        Showing row {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} - {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, totalCount)} of {totalCount}
+
+      </span>
+    </div>
+  )
 
   return (
     <div className="w-full">
@@ -87,31 +217,29 @@ export const UsersTable = () => {
             </p>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
+            <Button
               type="button"
-              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={(e) => {
                 e.preventDefault();
                 seedUsersMutation.mutate();
               }}
             >
-              seed table
-            </button>
+              Seed table
+            </Button>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
+            <Button
               onClick={() => setShowDialogOpen(true)}
               type="button"
-              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Add user
-            </button>
-
+            </Button>
           </div>
         </div>
         <div className="mt-8 flow-root">
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <Pagination />
               <table className="min-w-full divide-y divide-gray-300">
                 <thead>
                   <tr className="">
@@ -138,6 +266,7 @@ export const UsersTable = () => {
                   ))}
                 </tbody>
               </table>
+              <Pagination />
             </div>
           </div>
         </div>

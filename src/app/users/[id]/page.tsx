@@ -27,6 +27,14 @@ export default async function Page({ params }: { params: { id: string } }) {
           <CardContent>
             <dl className="grid grid-cols-1 gap-2 text-sm">
               <div className="grid grid-cols-3">
+                <dt className="font-medium">Given Name:</dt>
+                <dd className="col-span-2">{user.givenName}</dd>
+              </div>
+              <div className="grid grid-cols-3">
+                <dt className="font-medium">Family Name:</dt>
+                <dd className="col-span-2">{user.familyName}</dd>
+              </div>
+              <div className="grid grid-cols-3">
                 <dt className="font-medium">Email:</dt>
                 <dd className="col-span-2">{user.email}</dd>
               </div>
@@ -45,7 +53,7 @@ export default async function Page({ params }: { params: { id: string } }) {
               <div className="grid grid-cols-3">
                 <dt className="font-medium">Website:</dt>
                 <dd className="col-span-2">
-                  <a target="_blank" rel="noopener noreferrer" href="http://ambacelar.com">Adilsons Personal Site</a>
+                  <a target="_blank" rel="noopener noreferrer" href="http://ambacelar.com">Adilson&apos;s Personal Site</a>
                 </dd>
               </div>
             </dl>
