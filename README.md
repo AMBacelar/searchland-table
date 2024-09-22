@@ -1,21 +1,26 @@
-# Create T3 App
+# Searchland take-home test
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-## What's next? How do I make an app with this?
+## Quickstart
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+```bash
+npm install
+npm run db:push
+npm run dev
+```
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Libraries/Technologies used
 
 - [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
 - [Drizzle](https://orm.drizzle.team)
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
+- [Tanstack Table](https://tanstack.com/table)
+- [Tanstack Form](https://tanstack.com/form/latest)
+- [shadcn/ui](https://ui.shadcn.com/)
 
-## Learn More
+## Learn More about the T3 Stack
 
 To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
 
