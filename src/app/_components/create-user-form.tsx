@@ -8,11 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { z } from 'zod';
+import { departments, renderDepartment } from '~/lib/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const FieldInfo = ({ field }: { field: FieldApi<any, any, any, any> }) => {
   return (
-    <div className="mb-3">
+    <div className="mb-3 text-red-500">
       {field.state.meta.isTouched && field.state.meta.errors.length ? (
         <em>{field.state.meta.errors.join(',')}</em>
       ) : null}
@@ -44,7 +46,19 @@ export const CreateUserForm = ({ onSubmitComplete }: { onSubmitComplete: () => v
       createUser.mutate(value);
       onSubmitComplete();
     },
-    validatorAdapter: zodValidator()
+    validatorAdapter: zodValidator(),
+    validators: {
+      onChange:
+        z.object({
+          department: z.string().min(1, "Department must be at least 1 character long"),
+          dob: z.string().date("Must be a valid date"),
+          email: z.string().email({ message: "Invalid email address!" }),
+          familyName: z.string().min(1, "Family Name must be at least 1 character long"),
+          givenName: z.string().min(1, "Given Name must be at least 1 character long"),
+          title: z.string().min(1, "Job Title must be at least 1 character long"),
+          username: z.string().min(4, "Username must be at least 4 characters long"),
+        })
+    }
   })
 
   return (
@@ -178,17 +192,22 @@ export const CreateUserForm = ({ onSubmitComplete }: { onSubmitComplete: () => v
                 <SelectValue placeholder="Select a department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Human Resources">Human Resources</SelectItem>
-                <SelectItem value="IT">IT</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
+                {departments.map((department) => (
+                  <SelectItem key={department} value={department}>{renderDepartment(department)}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </>
         )}
       />
-
-      <Button type="submit" className="w-full">Create User</Button>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+        children={([canSubmit, isSubmitting]) => (
+          <Button type="submit" disabled={!canSubmit} className="w-full">
+            {isSubmitting ? '...' : 'Create User'}
+          </Button>
+        )}
+      />
     </form>
   )
 }
