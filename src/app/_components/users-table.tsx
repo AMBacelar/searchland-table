@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { type users as userSchema } from "~/server/db/schema";
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,18 +14,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
 } from "~components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
 } from "~components/ui/dialog"
 import { CreateUserForm } from "~components/create-user-form";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
 export const UsersTable = () => {
+  const [showDialogOpen, setShowDialogOpen] = useState(false);
+  const [showAlertOpen, setShowAlertOpen] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState<number>();
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = parseInt(searchParams.get('page') ?? '1', 10);
@@ -33,6 +35,8 @@ export const UsersTable = () => {
   const [{ users, totalCount }] = api.user.getUsers.useSuspenseQuery({ limit: 10 });
   const deleteUserMutation = api.user.deleteUser.useMutation({
     onSuccess: async () => {
+      setShowAlertOpen(false);
+      setDeleteUserId(undefined);
       await utils.user.invalidate();
     }
   });
@@ -43,11 +47,6 @@ export const UsersTable = () => {
   });
 
   const TableRow = ({ user }: { user: typeof userSchema.$inferSelect }) => {
-
-    const handleDeleteUser = () => {
-      deleteUserMutation.mutate({ id: user.id });
-    }
-
     return (
       <tr key={user.email}>
         <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
@@ -66,26 +65,12 @@ export const UsersTable = () => {
         <td className="whitespace-nowrap px-3 py-5 text-sm">{user.email}</td>
         <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
           <Link href={`/users/${user.id}`} className="">View</Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" >
-                Delete<span className="sr-only">, {user.username}</span>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete this user
-                  account and remove this data from our database.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteUser}>Delete</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button variant="destructive" onClick={() => {
+            setShowAlertOpen(true);
+            setDeleteUserId(user.id);
+          }} >
+            Delete<span className="sr-only">, {user.username}</span>
+          </Button>
         </td>
       </tr>
     )
@@ -114,20 +99,14 @@ export const UsersTable = () => {
             </button>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <button
+              onClick={() => setShowDialogOpen(true)}
+              type="button"
+              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Add user
+            </button>
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <button
-                  type="button"
-                  className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Add user
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <CreateUserForm />
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
         <div className="mt-8 flow-root">
@@ -163,6 +142,29 @@ export const UsersTable = () => {
           </div>
         </div>
       </div>
+      <Dialog open={showDialogOpen} onOpenChange={setShowDialogOpen} >
+        <DialogContent className="sm:max-w-[425px]">
+          <CreateUserForm onSubmitComplete={() => setShowDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
+      <AlertDialog open={showAlertOpen} onOpenChange={setShowAlertOpen} >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this user
+              account and remove this data from our database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => {
+              e.preventDefault();
+              deleteUserMutation.mutate({ id: deleteUserId! })
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -21,7 +21,7 @@ export const FieldInfo = ({ field }: { field: FieldApi<any, any, any, any> }) =>
   )
 }
 
-export const CreateUserForm = () => {
+export const CreateUserForm = ({ onSubmitComplete }: { onSubmitComplete: () => void }) => {
 
   const utils = api.useUtils();
   const createUser = api.user.create.useMutation({
@@ -42,7 +42,7 @@ export const CreateUserForm = () => {
     },
     onSubmit: async ({ value }) => {
       createUser.mutate(value);
-      console.log(value)
+      onSubmitComplete();
     },
     validatorAdapter: zodValidator()
   })
