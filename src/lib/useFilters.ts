@@ -44,9 +44,3 @@ export const useFilters = () => {
 
   return { filters, setFilters, resetFilters };
 };
-
-// username
-// title
-// email
-// pageIndex
-// pageSize

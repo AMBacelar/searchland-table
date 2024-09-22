@@ -55,8 +55,6 @@ export const CreateUserForm = ({ onSubmitComplete }: { onSubmitComplete: () => v
       }}
       className="space-y-6 mx-auto w-full p-6"
     >
-      <h2 className="text-2xl font-bold text-center mb-6">Create User</h2>
-
       <form.Field
         name="givenName"
         children={(field) => (
@@ -180,10 +178,10 @@ export const CreateUserForm = ({ onSubmitComplete }: { onSubmitComplete: () => v
                 <SelectValue placeholder="Select a department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hr">Human Resources</SelectItem>
-                <SelectItem value="it">IT</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
+                <SelectItem value="Human Resources">Human Resources</SelectItem>
+                <SelectItem value="IT">IT</SelectItem>
+                <SelectItem value="Finance">Finance</SelectItem>
+                <SelectItem value="Marketing">Marketing</SelectItem>
               </SelectContent>
             </Select>
           </>

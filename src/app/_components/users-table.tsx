@@ -24,10 +24,12 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "~components/ui/dialog"
 import { CreateUserForm } from "~components/create-user-form";
 import { Button } from "./ui/button";
 import { useFilters } from "~/lib/useFilters";
+import { renderDepartment } from "~/lib/utils";
 
 export const DEFAULT_PAGE_INDEX = '0';
 export const DEFAULT_PAGE_SIZE = '10';
@@ -77,7 +79,7 @@ export const UsersTable = () => {
           <div className="">{user.title}</div>
         </td>
         <td className="whitespace-nowrap px-3 py-5 text-sm">
-          <div className="">{user.department}</div>
+          <div className="">{renderDepartment(user.department)}</div>
         </td>
         <td className="whitespace-nowrap px-3 py-5 text-sm">{user.email}</td>
         <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0 flex gap-2">
@@ -213,7 +215,7 @@ export const UsersTable = () => {
           <div className="sm:flex-auto">
             <h1 className="text-base font-semibold leading-6">Users</h1>
             <p className="mt-2 text-sm">
-              A list of all the users in the database including their name, title, email and role.
+              A list of all the users in the database including their username, job title, email and role.
             </p>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -272,7 +274,8 @@ export const UsersTable = () => {
         </div>
       </div>
       <Dialog open={showDialogOpen} onOpenChange={setShowDialogOpen} >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogTitle>Create User</DialogTitle>
+        <DialogContent className="sm:max-w-[725px]">
           <CreateUserForm onSubmitComplete={() => setShowDialogOpen(false)} />
         </DialogContent>
       </Dialog>

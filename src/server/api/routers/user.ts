@@ -4,8 +4,7 @@ import { faker } from "@faker-js/faker";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { users } from "~/server/db/schema";
-
-const departments = ["Engineering", "Marketing", "Finance"] as const;
+import { departments } from "~/lib/utils";
 
 const newPerson = (): {
   department: string;
