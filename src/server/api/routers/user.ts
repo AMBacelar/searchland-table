@@ -76,7 +76,7 @@ export const userRouter = createTRPCRouter({
   getUsers: publicProcedure
     .input(
       z.object({
-        limit: z.number().min(1).max(100).default(10),
+        limit: z.number().min(1).default(10),
         offset: z.number().optional(),
       }),
     )

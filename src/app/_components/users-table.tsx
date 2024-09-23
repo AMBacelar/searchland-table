@@ -52,6 +52,7 @@ export const UsersTable = () => {
     limit: paginationState.pageSize,
     offset: paginationState.pageIndex * paginationState.pageSize,
   });
+
   const deleteUserMutation = api.user.deleteUser.useMutation({
     onSuccess: async () => {
       setShowAlertOpen(false);
@@ -207,6 +208,15 @@ export const UsersTable = () => {
       </span>
     </div>
   )
+
+  if (paginationState.pageIndex < 0 || paginationState.pageSize < 1) {
+    return (
+      <div className="text-center text-gray-500">
+        <p>Please provide valid page index and page size.</p>
+        <Link className="font-bold underline" href={'/'}>Go Home</Link>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full">
