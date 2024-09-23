@@ -10,7 +10,8 @@ To set up and run the project locally, follow these steps after cloning the repo
 cp .env.example .env
 npm install
 npm run db:push
-npm run dev
+npm run build
+npm run start
 ```
 
 > the `cp` command is the copy command. If your OS does not support the command, simply make a copy of the `.env.example` file and name the new version `.env`. The application will not be able to connect to a database if this step is not followed.
