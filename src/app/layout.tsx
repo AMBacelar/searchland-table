@@ -8,7 +8,6 @@ import { ThemeProvider } from "~components/theme-provider";
 import { ModeToggle } from "./_components/theme-toggle";
 import Link from "next/link";
 import { HomeIcon } from "@radix-ui/react-icons";
-import { Button } from "./_components/ui/button";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
